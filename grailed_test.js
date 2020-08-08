@@ -23,13 +23,14 @@ let log = [];
 let favorites = new Set();
 let mostPopularDesigners = [];
 
-// Allow user to favorite designers.
-let favoriteDesigner = (userId, designerId) => {
-    let selectedUser = findUser(userId);
+class Favorites {
+
+  static add(userId, designerId){
+    let selectedUser = this.findUser(userId);
     if (selectedUser === undefined){
       return console.log('No user found for id: ', userId);
     }
-    let selectedDesigner = findDesigner(designerId);
+    let selectedDesigner = this.findDesigner(designerId);
     if (selectedDesigner === undefined){
       return console.log('No designer found for id: ', designerId);
     }
@@ -37,108 +38,103 @@ let favoriteDesigner = (userId, designerId) => {
     if (favorites.has(favorite)){
       return console.log('User ' + selectedUser.id + ' has already favorited designer ' + selectedDesigner.id);
     }
-    logEvent(userId, 'Added favorite: ' + designerId);
-    addToMostPopular(selectedDesigner.name);
+    this.logEvent(userId, 'Added favorite: ' + designerId);
+    this.addToMostPopular(selectedDesigner.name);
     return favorites.add(favorite);
-}
-
-// Remove a specific favorite from a user.
-let removeFavorite = (userId, designerId) => {
+  }
+  
+  static remove(userId, designerId){
     let favorite = JSON.stringify({userId:userId, designerId:designerId})
     let deleteResult =  favorites.delete(favorite)
     if (deleteResult === true){
-      logEvent(userId, 'Deleted a favorite: ' + designerId);
-      let designerName = findDesigner(designerId).name;
-      removeFromMostPopular(designerName);
+      this.logEvent(userId, 'Deleted a favorite: ' + designerId);
+      let designerName = this.findDesigner(designerId).name;
+      this.removeFromMostPopular(designerName);
     } else {
       console.log('User: ' + userId + ' has already removed designer: ' + designerId);
     }
-}
-
-// Return all designers a user has favorited.
-let returnFavorites = (userId) =>{
-      let selectedUser = findUser(userId);
-      if (selectedUser === undefined){
-        return console.log('No user found');
-      }
-      let favoritesArray = Array.from(favorites).map(JSON.parse);
-      let selectedUserFavorites = favoritesArray.filter(favorite => favorite.userId === userId);
-      if (selectedUserFavorites === undefined){
-        return console.log('No favorites found');
-      }
-      return console.log('Favorites for user: ' + selectedUser.id, favoritesArray.filter(favorite => favorite.userId == selectedUser.id));  
-}
-
-// Find the most popular designer with one loop and 2d array.
-let getMostPopularDesigner = () => {
-    return console.log('The most popular designer is: ' + mostPopularDesigners.sort((a,b) => b[1] - a[1])[0][0]);
-}
-
-// Add a feature to log adds/removals
-let logEvent = (userId, event) => {
-  log.push({userId: userId, event: event});
-}
-
-// Add a way to print log for the user                
-let retrieveEvents = (userId) =>{
-  return console.log('Log for User ' + userId, log.filter(event => event.userId === userId));
-}
-
-let addToMostPopular = (designerName) => {
-  let selectedDesigner = mostPopularDesigners.find(designer => designer[0] === designerName);
-  if (selectedDesigner === undefined){
-    mostPopularDesigners.push([designerName,1]);
-  } else {
-    selectedDesigner[1]+=1;
   }
-}
-
-let removeFromMostPopular = (designerName) => {
-  let selectedDesigner = findMostPopularDesigner(designerName);
-  selectedDesigner[1]-=1;
-}
-
-let findUser = (userId) =>{
-  return users.find(user => user.id === userId );
-}
-
-let findDesigner = (designerId) => {
-  return designers.find(designer => designer.id === designerId);
-}
-
-let findMostPopularDesigner = (designerName) => {
-  return mostPopularDesigners.find(designer => designer[0] === designerName);
+  
+  static returnAll(userId) {
+    let selectedUser = findUser(userId);
+    if (selectedUser === undefined){
+      return console.log('No user found');
+    }
+    let favoritesArray = Array.from(favorites).map(JSON.parse);
+    let selectedUserFavorites = favoritesArray.filter(favorite => favorite.userId === userId);
+    if (selectedUserFavorites === undefined){
+      return console.log('No favorites found');
+    }
+    return console.log('Favorites for user: ' + selectedUser.id, favoritesArray.filter(favorite => favorite.userId == selectedUser.id));  
+  }
+  
+  static getMostPopularDesigner(){
+    return console.log('The most popular designer is: ' + mostPopularDesigners.sort((a,b) => b[1] - a[1])[0][0]);
+  }
+  
+  static logEvent(userId, event){
+    log.push({userId: userId, event: event});
+  }
+  
+  static retrieveEvents(userId){
+    return console.log('Log for User ' + userId, log.filter(event => event.userId === userId));
+  }
+  
+  static addToMostPopular(designerName){
+    let selectedDesigner = mostPopularDesigners.find(designer => designer[0] === designerName);
+    if (selectedDesigner === undefined){
+      mostPopularDesigners.push([designerName,1]);
+    } else {
+      selectedDesigner[1]+=1;
+    }
+  }
+  
+  static removeFromMostPopular(designerName){
+    let selectedDesigner = this.findMostPopularDesigner(designerName);
+    selectedDesigner[1]-=1; 
+  }
+  
+  static findUser(userId){
+    return users.find(user => user.id === userId );
+  }
+  
+  static findDesigner(designerId){
+    return designers.find(designer => designer.id === designerId);
+  }
+  
+  static findMostPopularDesigner(designerName){
+    return mostPopularDesigners.find(designer => designer[0] === designerName);
+  }
 }
     
 // Add favorite designers
-favoriteDesigner(0, 1);
-favoriteDesigner(23, 2);
-favoriteDesigner(23, 1);
-favoriteDesigner(11, 1);
-favoriteDesigner(11, 2);
-favoriteDesigner(0, 2);
-favoriteDesigner(13, 2);
-favoriteDesigner(23, 6);
-favoriteDesigner(0, 6);
-favoriteDesigner(11, 6);
-favoriteDesigner(5, 6);
-favoriteDesigner(13, 6);
-favoriteDesigner(13,6);
+Favorites.add(0, 1);
+Favorites.add(23, 2);
+Favorites.add(23, 1);
+Favorites.add(11, 1);
+Favorites.add(11, 2);
+Favorites.add(0, 2);
+Favorites.add(13, 2);
+Favorites.add(23, 6);
+Favorites.add(0, 6);
+Favorites.add(11, 6);
+Favorites.add(5, 6);
+Favorites.add(13, 6);
+Favorites.add(13,6);
 
-removeFavorite(0,6);
-removeFavorite(0,6);
+// Favorites.remove(0,6);
+// Favorites.remove(0,6);
 
-removeFavorite(0,1);
-removeFavorite(23,6);
-removeFavorite(13,6);
-removeFavorite(5,6);
+// Favorites.remove(0,1);
+// Favorites.remove(23,6);
+// Favorites.remove(13,6);
+// Favorites.remove(5,6);
 
 
 
 // Output most popular designer.
-getMostPopularDesigner();
-console.log('favorites', favorites);
-console.log('mostPopularDesigners', mostPopularDesigners);
+Favorites.getMostPopularDesigner();
+
 
 // Retrieve favorite history for user 0.
 // retrieveEvents(0);
